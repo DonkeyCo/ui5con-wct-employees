@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import GlobalDashboard from './GlobalDashboard';
 import EmployeeTeamView from './EmployeeTeamView';
 import { ShellBar, ShellBarItem, Card, CardHeader, Avatar, Bar, Popover, List, Icon, ListItemStandard } from '@ui5/webcomponents-react';
@@ -24,7 +24,7 @@ function App() {
       <div style={{ minHeight: '100vh', background: 'var(--sapBackgroundColor)', display: 'flex', flexDirection: 'column' }}>
         <ShellBar
           primaryTitle="Employee Management System"
-          logo={<img src="/ui5wc-logo.svg" alt="UI5 Logo" style={{ height: 32 }} />}
+          logo={<img src={`${import.meta.env.BASE_URL}ui5wc-logo.svg`} alt="UI5 Logo" style={{ height: 32 }} />}
           onLogoClick={() => setView('global')}
         >
           <ShellBarItem icon="table-view" text="Global" onClick={() => setView('global')} />
