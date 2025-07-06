@@ -1,16 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-	Table,
-	TableHeaderRow,
-	TableHeaderCell,
-	TableRow,
-	TableCell,
-	TableVirtualizer
-} from '@ui5/webcomponents-react';
+import React, { useState, useRef } from 'react';
 import { Input } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents/dist/Assets.js';
 import '@ui5/webcomponents-fiori/dist/Assets.js';
 import '@ui5/webcomponents-react/dist/Assets.js';
+import EmployeeTable from './components/EmployeeTable';
 
 // Mock employee data
 type Employee = {
@@ -50,7 +43,7 @@ const GlobalDashboard: React.FC = () => {
 		[search]
 	);
 
-	const handleRangeChange: React.ComponentProps<typeof TableVirtualizer>["onRangeChange"] = (e) => {
+	const handleRangeChange: React.ComponentProps<typeof EmployeeTable>["onRangeChange"] = (e) => {
 		const { first, last } = e.detail;
 		const overscanStart = Math.max(first, 0);
 		const overscanEnd = Math.min(last, filtered.length);
@@ -67,39 +60,15 @@ const GlobalDashboard: React.FC = () => {
 					style={{ width: 240 }}
 				/>
 			</div>
-			<Table
-				className="table-scrollbar"
-				style={{ height: `${TABLE_HEIGHT}px`, width: '100%' }}
-				headerRow={
-					<TableHeaderRow sticky>
-						<TableHeaderCell width="48px" minWidth="48px">#</TableHeaderCell>
-						<TableHeaderCell minWidth="100px">Name</TableHeaderCell>
-						<TableHeaderCell minWidth="100px">Department</TableHeaderCell>
-						<TableHeaderCell minWidth="90px">Title</TableHeaderCell>
-						<TableHeaderCell minWidth="100px">Email</TableHeaderCell>
-					</TableHeaderRow>
-				}
-				features={
-					<TableVirtualizer
-						key={search}
-						ref={virtualizerRef}
-						rowCount={filtered.length}
-						rowHeight={ROW_HEIGHT}
-						onRangeChange={handleRangeChange} />
-				}
-				noDataText="No employees found."
-			>
-				{
-					data.map((emp) => (
-						<TableRow key={emp.position} position={emp.position}>
-							<TableCell>{emp.id}</TableCell>
-							<TableCell>{emp.name}</TableCell>
-							<TableCell>{emp.department}</TableCell>
-							<TableCell>{emp.title}</TableCell>
-							<TableCell>{emp.email}</TableCell>
-						</TableRow>
-					))}
-			</Table>
+			<EmployeeTable
+				data={data}
+				filteredLength={filtered.length}
+				rowHeight={ROW_HEIGHT}
+				tableHeight={TABLE_HEIGHT}
+				onRangeChange={handleRangeChange}
+				search={search}
+				virtualizerRef={virtualizerRef}
+			/>
 		</div>
 	);
 };
