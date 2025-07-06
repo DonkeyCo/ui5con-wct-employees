@@ -11,24 +11,14 @@ import AddEmployeeDialog from './components/AddEmployeeDialog';
 import SalaryDialog from './components/SalaryDialog';
 import TeamTable from './components/TeamTable';
 import ProjectBoard from './components/ProjectBoard';
-
-// Mock team data
-const INITIAL_TEAM = [
-	{ id: 1, name: 'Alice', title: 'Developer', project: 'Project A', salary: 90000 },
-	{ id: 2, name: 'Bob', title: 'Analyst', project: 'Project B', salary: 85000 },
-	{ id: 3, name: 'Charlie', title: 'Consultant', project: 'Project C', salary: 95000 },
-	{ id: 4, name: 'Diana', title: 'Developer', project: 'Project D', salary: 91000 },
-	{ id: 5, name: 'Eve', title: 'Developer', project: 'Project A', salary: 88000 },
-	{ id: 6, name: 'Frank', title: 'Analyst', project: 'Project B', salary: 83000 },
-	{ id: 7, name: 'Grace', title: 'Consultant', project: 'Project C', salary: 97000 },
-	{ id: 8, name: 'Heidi', title: 'Developer', project: 'Project D', salary: 92000 }
-];
+import { useEmployeeData } from './context/EmployeeDataContext';
 
 type EmployeeTeamViewProps = {
 	role?: 'Employee' | 'Manager';
 };
 
 const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }) => {
+	const { employees, setEmployees } = useEmployeeData();
 	// --- Dialog State and Handlers ---
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [newName, setNewName] = useState('');
@@ -37,10 +27,22 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 	const closeAddDialog = () => { setDialogOpen(false); setNewName(''); setNewTitle(''); };
 	const submitAddDialog = () => {
 		if (!newName.trim() || !newTitle.trim()) return;
-		const nextId = team.length ? Math.max(...team.map(e => e.id)) + 1 : 1;
+		const nextId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
 		// Add a random salary for new employees
 		const randomSalary = Math.floor(Math.random() * 30000) + 70000;
-		setTeam(prev => [...prev, { id: nextId, name: newName, title: newTitle, project: '', salary: randomSalary }]);
+		setEmployees(prev => [
+			...prev,
+			{
+				id: nextId,
+				name: newName,
+				title: newTitle,
+				project: '',
+				salary: randomSalary,
+				department: '',
+				email: '',
+				team: 'Alpha' // Ensure new employees are added to the current team
+			}
+		]);
 		closeAddDialog();
 	};
 
@@ -51,10 +53,11 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 	const [adjustDirection, setAdjustDirection] = useState<'increase' | 'decrease'>('increase');
 	const openSalaryDialog = () => setSalaryDialogOpen(true);
 	const closeSalaryDialog = () => { setSalaryDialogOpen(false); setAdjustValue(''); };
+	const [selectedIds, setSelectedIds] = useState<number[]>([]);
 	const applySalaryAdjustment = () => {
 		const value = parseFloat(adjustValue);
 		if (isNaN(value) || value <= 0) return;
-		setTeam(prev => prev.map(emp => {
+		setEmployees(prev => prev.map(emp => {
 			if (!selectedIds.includes(emp.id)) return emp;
 			let newSalary = emp.salary;
 			if (adjustType === 'percent') {
@@ -69,9 +72,9 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 	};
 
 	// --- Team State and Selection ---
-	const [team, setTeam] = useState(INITIAL_TEAM);
-	const [selectedIds, setSelectedIds] = useState<number[]>([]);
-	const handleRemove = (id: number) => setTeam(prev => prev.filter(member => member.id !== id));
+	// Only show up to 10 employees from team 'Alpha' in the team dashboard
+	const team = employees.filter(e => e.team === 'Alpha');
+	const handleRemove = (id: number) => setEmployees(prev => prev.map(e => e.id === id ? { ...e, project: '', team: '' } : e));
 
 	// --- Table Row Move Handlers ---
 	const handleMove = (event: any) => {
@@ -80,11 +83,18 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 		const destinationIndex = team.findIndex(row => `${row.id}` === destination.element.rowKey);
 		if (sourceIndex === -1 || destinationIndex === -1) return;
 		if (destination.placement === 'Before' || destination.placement === 'After') {
-			const updated = [...team];
-			const [moved] = updated.splice(sourceIndex, 1);
-			if (destination.placement === 'Before') updated.splice(destinationIndex, 0, moved);
-			else updated.splice(destinationIndex + 1, 0, moved);
-			setTeam(updated);
+			const teamIds = team.map(m => m.id);
+			const updatedOrder = [...teamIds];
+			const [movedId] = updatedOrder.splice(sourceIndex, 1);
+			if (destination.placement === 'Before') updatedOrder.splice(destinationIndex, 0, movedId);
+			else updatedOrder.splice(destinationIndex + 1, 0, movedId);
+			// Reorder employees in context
+			setEmployees(prev => {
+				const teamMembers = prev.filter(e => teamIds.includes(e.id));
+				const rest = prev.filter(e => !teamIds.includes(e.id));
+				const reordered = updatedOrder.map(id => teamMembers.find(e => e.id === id)!);
+				return [...rest, ...reordered];
+			});
 		}
 	};
 	const handleMoveOver = (event: any) => {
@@ -98,20 +108,9 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 
 	// --- Project Board Drag & Drop ---
 	const handleListMove = (targetProject: string) => (event: any) => {
-		const { source, destination } = event.detail;
-		const destinationList = destination?.element?.closest('[data-list-index]');
-		if (!destinationList) return;
-		const projectIndex = destinationList.getAttribute('data-list-index');
-		if (projectIndex === null) return;
-		const project = ['Project A', 'Project B', 'Project C', 'Project D', 'Unassigned'][Number(projectIndex)];
-		if (!project) return;
-		const employeeId = parseInt(source?.element?.getAttribute('data-id') ?? source?.element?.rowKey);
-		if (isNaN(employeeId)) return;
-		const employee = team.find(m => m.id === employeeId);
-		if (!employee) return;
-		const newProject = targetProject === 'Unassigned' ? '' : targetProject;
-		if (employee.project === newProject) return;
-		setTeam(prev => prev.map(emp => emp.id === employeeId ? { ...emp, project: newProject } : emp));
+		const { source } = event.detail;
+		const id = Number(source.element.rowKey ?? source.element.getAttribute("data-id"));
+		setEmployees(prev => prev.map(e => e.id === id ? { ...e, project: targetProject === 'Unassigned' ? '' : targetProject } : e));
 	};
 	const handleListMoveOver = (event: any) => {
 		const { source, destination } = event.detail;

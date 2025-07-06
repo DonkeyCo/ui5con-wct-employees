@@ -25,10 +25,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, row
     headerRow={
       <TableHeaderRow sticky>
         <TableHeaderCell width="48px" minWidth="48px">#</TableHeaderCell>
-        <TableHeaderCell minWidth="100px">Name</TableHeaderCell>
-        <TableHeaderCell minWidth="100px">Department</TableHeaderCell>
+        <TableHeaderCell minWidth="200px">Name</TableHeaderCell>
+        <TableHeaderCell minWidth="150px">Department</TableHeaderCell>
         <TableHeaderCell minWidth="90px">Title</TableHeaderCell>
-        <TableHeaderCell minWidth="100px">Email</TableHeaderCell>
+        <TableHeaderCell minWidth="300px">Email</TableHeaderCell>
       </TableHeaderRow>
     }
     features={

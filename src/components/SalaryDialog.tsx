@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, Input, Button } from '@ui5/webcomponents-react';
+import { Dialog, Input, Button, Select, Option } from '@ui5/webcomponents-react';
 import type { InputDomRef } from '@ui5/webcomponents-react';
 
 interface SalaryDialogProps {
@@ -20,18 +20,18 @@ const SalaryDialog: React.FC<SalaryDialogProps> = ({
   <Dialog open={open} headerText="Adjust Salary" onClose={onClose}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 12 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <label>Type:</label>
-        <select value={adjustType} onChange={e => onTypeChange(e.target.value as 'percent' | 'amount')}>
-          <option value="percent">Percent (%)</option>
-          <option value="amount">Amount (€)</option>
-        </select>
+        <label htmlFor="salary-type">Type:</label>
+        <Select id="salary-type" value={adjustType} onChange={e => onTypeChange(e.target.value as 'percent' | 'amount')} style={{ minWidth: 120 }}>
+          <Option selected={adjustType === 'percent'} value="percent">Percent (%)</Option>
+          <Option selected={adjustType === 'amount'} value="amount">Amount (€)</Option>
+        </Select>
       </div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <label>Direction:</label>
-        <select value={adjustDirection} onChange={e => onDirectionChange(e.target.value as 'increase' | 'decrease')}>
-          <option value="increase">Increase</option>
-          <option value="decrease">Decrease</option>
-        </select>
+        <label htmlFor="salary-direction">Direction:</label>
+        <Select id="salary-direction" value={adjustDirection} onChange={e => onDirectionChange(e.target.value as 'increase' | 'decrease')} style={{ minWidth: 120 }}>
+          <Option selected={adjustDirection === 'increase'} value="increase">Increase</Option>
+          <Option selected={adjustDirection === 'decrease'} value="decrease">Decrease</Option>
+        </Select>
       </div>
       <Input
         placeholder={adjustType === 'percent' ? 'Percent (e.g. 5)' : 'Amount (e.g. 1000)'}
