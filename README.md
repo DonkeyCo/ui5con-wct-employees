@@ -44,7 +44,8 @@ A modern, modular Employee Management System built with React, TypeScript, Vite,
 ## 🛠️ Tech Stack
 - React + TypeScript
 - Vite
-- [UI5 Web Components](https://sap.github.io/ui5-webcomponents/) (direct usage, not React wrappers)
+- [UI5 Web Components](https://sap.github.io/ui5-webcomponents/)
+- [UI5 Web Components for React](https://sap.github.io/ui5-webcomponents-react/v2/?path=/docs/getting-started--docs)
 
 ## ▶️ Getting Started
 1. Install dependencies:
