@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import {
 	Button
 } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents/dist/Assets.js';
-import '@ui5/webcomponents-fiori/dist/Assets.js';
-import '@ui5/webcomponents-react/dist/Assets.js';
-import '@ui5/webcomponents-icons/dist/delete.js';
-import '@ui5/webcomponents-icons/dist/add.js';
 import AddEmployeeDialog from './components/AddEmployeeDialog';
 import SalaryDialog from './components/SalaryDialog';
 import TeamTable from './components/TeamTable';
 import ProjectBoard from './components/ProjectBoard';
 import { useEmployeeData } from './context/EmployeeDataContext';
+import '@ui5/webcomponents/dist/Assets.js';
+import '@ui5/webcomponents-fiori/dist/Assets.js';
+import '@ui5/webcomponents-react/dist/Assets.js';
+import '@ui5/webcomponents-icons/dist/delete.js';
+import '@ui5/webcomponents-icons/dist/add.js';
 
 type EmployeeTeamViewProps = {
 	role?: 'Employee' | 'Manager';
@@ -77,8 +77,8 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 	const handleRemove = (id: number) => setEmployees(prev => prev.map(e => e.id === id ? { ...e, project: '', team: '' } : e));
 
 	// --- Table Row Move Handlers ---
-	const handleMove = (event: any) => {
-		const { source, destination } = event.detail;
+	const handleMove = (event: Event) => {
+		const { source, destination } = (event as CustomEvent).detail;
 		const sourceIndex = team.findIndex(row => `${row.id}` === source.element.rowKey);
 		const destinationIndex = team.findIndex(row => `${row.id}` === destination.element.rowKey);
 		if (sourceIndex === -1 || destinationIndex === -1) return;
@@ -97,8 +97,8 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 			});
 		}
 	};
-	const handleMoveOver = (event: any) => {
-		const { source, destination } = event.detail;
+	const handleMoveOver = (event: Event) => {
+		const { source, destination } = (event as CustomEvent).detail;
 		if (
 			source.element.hasAttribute('ui5-table-row') &&
 			destination.element.hasAttribute('ui5-table-row') &&
@@ -107,19 +107,21 @@ const EmployeeTeamView: React.FC<EmployeeTeamViewProps> = ({ role = 'Employee' }
 	};
 
 	// --- Project Board Drag & Drop ---
-	const handleListMove = (targetProject: string) => (event: any) => {
-		const { source } = event.detail;
+	const handleListMove = (targetProject: string) => (event: Event) => {
+		const { source } = (event as CustomEvent).detail;
 		const id = Number(source.element.rowKey ?? source.element.getAttribute("data-id"));
 		setEmployees(prev => prev.map(e => e.id === id ? { ...e, project: targetProject === 'Unassigned' ? '' : targetProject } : e));
 	};
-	const handleListMoveOver = (event: any) => {
-		const { source, destination } = event.detail;
+	const handleListMoveOver = (event: Event) => {
+		const { source, destination } = (event as CustomEvent).detail;
 		const tag = source?.element.tagName.toLowerCase();
 		if (tag.includes('ui5-li') || tag.includes('ui5-table-row')) {
 			if (destination?.element.hasAttribute('data-empty-indicator')) {
-				destination.placement === 'On' && event.preventDefault();
-			} else {
-				destination.placement !== 'On' && event.preventDefault();
+				if (destination.placement === "On") {
+					event.preventDefault();
+				}
+			} else if (destination.placement !== "On") {
+				event.preventDefault();
 			}
 		}
 	};
