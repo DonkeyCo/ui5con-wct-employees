@@ -10,6 +10,7 @@ export type Employee = {
   salary: number;
   project: string; // always a string
   team: string; // new property
+  position?: number; // optional for virtualizer
 };
 
 const TEAMS = ['Alpha', 'Beta', 'Gamma', 'Delta'];
@@ -78,6 +79,7 @@ export const EmployeeDataProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useEmployeeData = () => {
   const ctx = useContext(EmployeeDataContext);
   if (!ctx) throw new Error('useEmployeeData must be used within EmployeeDataProvider');

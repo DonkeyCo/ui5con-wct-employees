@@ -30,8 +30,8 @@ interface TeamTableProps {
 	role: 'Employee' | 'Manager';
 	onSelectionChange: (ids: number[]) => void;
 	onRemove: (id: number) => void;
-	onMove: (event: any) => void;
-	onMoveOver: (event: any) => void;
+	onMove: (event: Event) => void;
+	onMoveOver: (event: Event) => void;
 }
 
 const TeamTable: React.FC<TeamTableProps> = ({ team, role, onSelectionChange, onRemove, onMove, onMoveOver }) => {

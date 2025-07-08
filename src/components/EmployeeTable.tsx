@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
 	Table,
 	TableHeaderRow,
@@ -6,22 +6,30 @@ import {
 	TableRow,
 	TableCell,
 	TableVirtualizer,
-	TableSelectionMulti
+	TableSelectionMulti,
+	type TableVirtualizerDomRef
 } from '@ui5/webcomponents-react';
+import type { Employee } from '../context/EmployeeDataContext';
 
 interface EmployeeTableProps {
-	data: any[];
+	data: Employee[];
 	filteredLength: number;
 	rowHeight: number;
 	tableHeight: number;
-	onRangeChange: (e: any) => void;
+	onRangeChange: (e: Event) => void;
 	search: string;
-	virtualizerRef: React.Ref<any>;
 	selectedIds: string[];
 	onSelectionChange: (e: Event) => void;
 }
 
-const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, rowHeight, tableHeight, onRangeChange, search, virtualizerRef, selectedIds, onSelectionChange }) => {
+const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, rowHeight, tableHeight, onRangeChange, search, onSelectionChange }) => {
+	const virtualizerRef = useRef<TableVirtualizerDomRef>(null);
+
+	useEffect(() => {
+		virtualizerRef.current?.reset();
+		console.log("reset");
+	}, [search])
+
 	return (
 		<Table
 			className="table-scrollbar"
@@ -38,7 +46,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, row
 			features={
 				<>
 					<TableVirtualizer
-						key={search}
 						ref={virtualizerRef}
 						rowCount={filteredLength}
 						rowHeight={rowHeight}
@@ -50,7 +57,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, row
 			noDataText="No employees found."
 		>
 			{data.map((emp) => (
-				<TableRow key={emp.id} rowKey={emp.id} position={emp.position}>
+				<TableRow key={emp.id} rowKey={emp.id.toString()} position={emp.position}>
 					<TableCell>{emp.id}</TableCell>
 					<TableCell>{emp.name}</TableCell>
 					<TableCell>{emp.department}</TableCell>
