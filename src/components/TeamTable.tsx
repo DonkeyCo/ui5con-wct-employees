@@ -113,7 +113,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ team, role, onSelectionChange, on
 				))}
 				{role === 'Manager' && (
 					<TableRow rowKey="summary" style={{ background: 'var(--sapList_TableGroupHeaderBackground)', borderTop: '1px solid var(--sapList_BorderColor)' }}>
-						<TableCell horizontalAlign="End" style={{ gridColumn: details === 'more' ? '2 / -2' : '2 / -2', gridRow: '1' }}>
+						<TableCell horizontalAlign="End" style={{ gridColumn: '2 / -2', gridRow: '1' }}>
 							<span style={{ fontWeight: 'bold' }}>
 								Total Salary:&nbsp;&nbsp;
 								{team.reduce((sum, m) => sum + (typeof m.salary === 'number' ? m.salary : 0), 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
