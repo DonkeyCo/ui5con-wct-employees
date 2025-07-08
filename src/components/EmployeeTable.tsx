@@ -7,9 +7,11 @@ import {
 	TableCell,
 	TableVirtualizer,
 	TableSelectionMulti,
-	type TableVirtualizerDomRef
+	type TableVirtualizerDomRef,
+	IllustratedMessage
 } from '@ui5/webcomponents-react';
 import type { Employee } from '../context/EmployeeDataContext';
+import "@ui5/webcomponents-fiori/dist/illustrations/NoData.js";
 
 interface EmployeeTableProps {
 	data: Employee[];
@@ -54,7 +56,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ data, filteredLength, row
 					<TableSelectionMulti onChange={onSelectionChange} />
 				</>
 			}
-			noDataText="No employees found."
+			noData={<IllustratedMessage name='NoData'></IllustratedMessage>}
 		>
 			{data.map((emp) => (
 				<TableRow key={emp.id} rowKey={emp.id.toString()} position={emp.position}>
